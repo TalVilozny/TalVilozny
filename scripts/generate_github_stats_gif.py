@@ -68,6 +68,48 @@ MONA_LINES = r"""
 """
 
 
+def load_terminal_image_settings() -> dict:
+    defaults = {
+        "filename": "profile-photo.jpg",
+        "row": 3,
+        "col": 5,
+        "size_multiplier": 0.45,
+    }
+    if not TERMINAL_IMAGE_CONFIG.is_file():
+        return defaults
+    try:
+        import tomllib
+    except ModuleNotFoundError:
+        import tomli as tomllib  # type: ignore[no-redef]
+    with TERMINAL_IMAGE_CONFIG.open("rb") as fp:
+        data = tomllib.load(fp)
+    image = data.get("image", {})
+    return {
+        "filename": image.get("filename", defaults["filename"]),
+        "row": int(image.get("row", defaults["row"])),
+        "col": int(image.get("col", defaults["col"])),
+        "size_multiplier": float(
+            image.get("size_multiplier", defaults["size_multiplier"])
+        ),
+    }
+
+
+def resolve_profile_photo(preferred_name: str | None = None) -> Path | None:
+    names: list[str] = []
+    if preferred_name:
+        names.append(preferred_name)
+    names.extend(PROFILE_PHOTO_NAMES)
+    seen: set[str] = set()
+    for name in names:
+        if name in seen:
+            continue
+        seen.add(name)
+        path = TERMINAL_ASSETS_DIR / name
+        if path.is_file() and path.stat().st_size > 1000:
+            return path
+    return None
+
+
 def latin1_safe(text: str | None) -> str:
     """Bitmap font only supports latin-1; strip/replace other characters."""
     if not text:
@@ -97,7 +139,7 @@ def build_stats_text(
         \x1b[96mOS: \x1b[93mWindows\x1b[0m
         \x1b[96mHost: \x1b[93mFrontend Developer / UX/UI Designer\x1b[0m
         \x1b[96mKernel: \x1b[93mReact + TypeScript + JavaScript\x1b[0m
-        \x1b[96mIDE: \x1b[93mVS Code, \x1b[0m
+        \x1b[96mIDE: \x1b[93mVS Code, Cursor\x1b[0m
 
         \x1b[30;101mContact:\x1b[0m
         --------------
@@ -151,9 +193,10 @@ def main() -> None:
         top_languages,
     )
 
-    bitmap_font = get_bitmap_font()
-    mona_font = get_mona_font()
+    image_cfg = load_terminal_image_settings()
+    profile_photo = resolve_profile_photo(image_cfg["filename"])
 
+    bitmap_font = get_bitmap_font()
     t = gifos.Terminal(750, 500, 15, 15, bitmap_font, 15)
 
     t.gen_prompt(1)
@@ -165,11 +208,22 @@ def main() -> None:
     t.gen_text("\x1b[92mfetch.sh\x1b[0m", 1, contin=True)
     t.gen_typing_text(f" -u {GITHUB_USER.lower()}", 1, contin=True)
 
-    t.set_font(mona_font, 16, 0)
     t.toggle_show_cursor(False)
-    t.gen_text(MONA_LINES, 10)
+    if profile_photo:
+        print(f"INFO: Using profile photo: {profile_photo}", file=sys.stderr)
+        t.paste_image(
+            str(profile_photo),
+            row_num=image_cfg["row"],
+            col_num=image_cfg["col"],
+            size_multiplier=image_cfg["size_multiplier"],
+        )
+    else:
+        print("INFO: No profile photo; using Mona ASCII art fallback.", file=sys.stderr)
+        mona_font = get_mona_font()
+        t.set_font(mona_font, 16, 0)
+        t.gen_text(MONA_LINES, 10)
+        t.set_font(bitmap_font)
 
-    t.set_font(bitmap_font)
     t.toggle_show_cursor(True)
     t.gen_text(user_details_lines, 2, 35, count=5, contin=True)
     t.gen_prompt(t.curr_row)
