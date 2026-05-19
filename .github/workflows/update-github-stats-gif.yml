@@ -1,0 +1,43 @@
+name: Update GitHub stats terminal GIF
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * *"
+
+permissions:
+  contents: write
+
+jobs:
+  update-gif:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install FFmpeg and Python dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Generate terminal GIF
+        run: python scripts/generate_github_stats_gif.py
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GIFOS_GENERAL_FPS: 12
+          GIFOS_GENERAL_LOOP_COUNT: 0
+          GIFOS_GENERAL_COLOR_SCHEME: dracula
+
+      - name: Commit updated GIF
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/github-stats.gif
+          git diff --staged --quiet || git commit -m "chore: refresh GitHub stats terminal GIF"
+          git push

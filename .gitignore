@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+.env
+.venv/
+venv/
+env/
+
+frames/
+frame_*
+temp/
+
+*.png
+*.gif
+!assets/github-stats.gif
