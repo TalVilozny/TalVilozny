@@ -1,0 +1,8 @@
+# Side image next to neofetch text (your photo).
+# Add the file under assets/terminal/ — see assets/terminal/UPLOAD_YOUR_PHOTO.txt
+
+[image]
+filename = "profile-photo.jpg"
+row = 3
+col = 5
+size_multiplier = 0.45

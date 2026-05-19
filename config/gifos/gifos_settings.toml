@@ -1,0 +1,20 @@
+# Terminal GIF settings for github-readme-terminal (gifos).
+# Copied to ~/.config/gifos/ when the generator runs (local + GitHub Actions).
+# Environment variables named GIFOS_* override these values.
+
+[general]
+debug = false
+cursor = "_"
+show_cursor = true
+blink_cursor = true
+user_name = "TalVilozny" # shell prompt: TalVilozny@gifos ~>
+fps = 13
+# Built-in schemes: yoru, dracula, everblush, nord, catppuccin-mocha,
+# catppuccin-latte, gruvbox-dark, gruvbox-light, rose-pine, onedark, monokai
+color_scheme = "everblush"
+loop_count = 4 # 0 = infinite loop
+
+[files]
+frame_base_name = "frame_"
+frame_folder_name = "frames"
+output_gif_name = "output"

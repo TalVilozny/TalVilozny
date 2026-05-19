@@ -12,3 +12,9 @@ temp/
 *.png
 *.gif
 !assets/github-stats.gif
+# Profile photo for terminal GIF (add profile-photo.jpg in this folder)
+!assets/terminal/
+!assets/terminal/profile-photo.jpg
+!assets/terminal/profile-photo.jpeg
+!assets/terminal/profile-photo.png
+!assets/terminal/profile-photo.webp

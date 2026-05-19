@@ -2,6 +2,16 @@ name: Update GitHub stats terminal GIF
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - "scripts/generate_github_stats_gif.py"
+      - "config/gifos/**"
+      - "config/terminal_image.toml"
+      - "assets/terminal/**"
+      - "requirements.txt"
+      - ".github/workflows/update-github-stats-gif.yml"
   schedule:
     - cron: "0 6 * * *"
 
@@ -14,7 +24,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Fetch Mona font (Git LFS)
+      - name: Fetch Mona font fallback (Git LFS)
+        if: ${{ !hashFiles('assets/terminal/profile-photo.jpg', 'assets/terminal/profile-photo.jpeg', 'assets/terminal/profile-photo.png', 'assets/terminal/profile-photo.webp') }}
         run: |
           mkdir -p fonts
           curl -fsSL -o fonts/Inversionz.otf \
@@ -34,13 +45,17 @@ jobs:
           pip install -r requirements.txt
 
       - name: Generate terminal GIF
-        run: python scripts/generate_github_stats_gif.py
+        run: |
+          if grep -qE "Total PRs|Merged PR|Contributions:" scripts/generate_github_stats_gif.py; then
+            echo "Script still contains hidden stats lines."
+            exit 1
+          fi
+          python scripts/generate_github_stats_gif.py
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GIFOS_GENERAL_USER_NAME: TalVilozny
-          GIFOS_GENERAL_FPS: 13
-          GIFOS_GENERAL_LOOP_COUNT: 4
-          GIFOS_GENERAL_COLOR_SCHEME: everblush
+          # Optional overrides (see config/gifos/gifos_settings.toml):
+          # GIFOS_GENERAL_COLOR_SCHEME: dracula
+          # GIFOS_GENERAL_FPS: 15
 
       - name: Commit updated GIF
         run: |

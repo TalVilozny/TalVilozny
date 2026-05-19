@@ -1,0 +1,28 @@
+# Optional: copy to ansi_escape_colors.toml to override or add color schemes.
+# Built-in schemes (dracula, everblush, nord, etc.) ship with gifos; you only
+# need this file for custom palettes.
+#
+# Example section name must match color_scheme in gifos_settings.toml:
+#
+# [my-theme]
+#   [my-theme.default_colors]
+#   fg = "#ffffff"
+#   bg = "#000000"
+#   [my-theme.normal_colors]
+#   black = "#000000"
+#   red = "#ff0000"
+#   green = "#00ff00"
+#   yellow = "#ffff00"
+#   blue = "#0000ff"
+#   magenta = "#ff00ff"
+#   cyan = "#00ffff"
+#   white = "#ffffff"
+#   [my-theme.bright_colors]
+#   black = "#666666"
+#   red = "#ff6666"
+#   green = "#66ff66"
+#   yellow = "#ffff66"
+#   blue = "#6666ff"
+#   magenta = "#ff66ff"
+#   cyan = "#66ffff"
+#   white = "#ffffff"
