@@ -3,11 +3,43 @@
 import os
 import shutil
 from datetime import datetime, timezone
+from pathlib import Path
 
 import gifos
 
 GITHUB_USER = "TalVilozny"
 OUTPUT_GIF = "assets/github-stats.gif"
+ROOT = Path(__file__).resolve().parents[1]
+FONTS_DIR = ROOT / "fonts"
+GIFOS_FONTS_DIR = Path(gifos.__file__).resolve().parent / "fonts"
+
+FONT_FILE_BITMAP = "gohufont-uni-14.pil"
+FONT_FILE_MONA = "Inversionz.otf"
+
+MONA_LINES = r"""
+        \x1b[49m    \x1b[90;100m}}\x1b[49m      \x1b[90;100m}}\x1b[0m
+        \x1b[49m   \x1b[90;100m}}}}\x1b[49m     \x1b[90;100m}}}}\x1b[0m
+        \x1b[49m  \x1b[90;100m}}}}}\x1b[49m    \x1b[90;100m}}}}}\x1b[0m
+        \x1b[49m  \x1b[90;100m}}}}}}}}}}}}}\x1b[0m
+        \x1b[49m \x1b[90;100m}}}}}}}}}}}}}}\x1b[0m
+        \x1b[49m \x1b[90;100m}}\x1b[37;47m}}}}}}}\x1b[90;100m}}}}}\x1b[0m
+        \x1b[49m \x1b[90;100m}}\x1b[37;47m}}}}}}}}}}\x1b[90;100m}}}\x1b[0m
+        \x1b[49m \x1b[90;100m}}\x1b[37;47m}\x1b[90;100m}\x1b[37;47m}}}}}\x1b[90;100m}\x1b[37;47m}}\x1b[90;100m}}}}\x1b[0m
+        \x1b[49m \x1b[90;100m}\x1b[37;47m}}\x1b[90;100m}\x1b[37;47m}}}}}\x1b[90;100m}\x1b[37;47m}}}\x1b[90;100m}}}\x1b[0m
+        \x1b[90;100m}}}\x1b[37;47m}}}}\x1b[90;100m}}}\x1b[37;47m}}}}}\x1b[90;100m}}}}\x1b[0m
+        \x1b[49m \x1b[90;100m}\x1b[37;47m}}}}}\x1b[90;100m}}\x1b[37;47m}}}}}\x1b[90;100m}}}\x1b[0m
+        \x1b[49m \x1b[90;100m}}\x1b[37;47m}}}}}}}}}}}}\x1b[90;100m}}}\x1b[0m
+        \x1b[90;100m}\x1b[49m \x1b[90;100m}}\x1b[37;47m}}}}}}}}\x1b[90;100m}}}\x1b[49m \x1b[90;100m}\x1b[0m
+        \x1b[49m  \x1b[90;100m}}}}}\x1b[0m
+        \x1b[49m \x1b[90;100m}}}}}}}\x1b[0m
+        \x1b[49m \x1b[90;100m}}}}}}}}\x1b[0m
+        \x1b[49m \x1b[90;100m}}}}}}}}}}\x1b[0m
+        \x1b[49m \x1b[90;100m}}}}}}}}}}}\x1b[0m
+        \x1b[49m \x1b[90;100m}}}}}}}}}}}}\x1b[0m
+        \x1b[49m \x1b[90;100m}}\x1b[49m  \x1b[90;100m}}}}}}\x1b[49m \x1b[90;100m}}\x1b[0m
+        \x1b[49m \x1b[90;100m}}}}}}}\x1b[0m
+        \x1b[49m \x1b[90;100m}}}\x1b[49m  \x1b[90;100m}}\x1b[0m
+"""
 
 
 def latin1_safe(text: str | None) -> str:
@@ -17,71 +49,83 @@ def latin1_safe(text: str | None) -> str:
     return text.encode("latin-1", errors="replace").decode("latin-1")
 
 
+def resolve_font(filename: str) -> str:
+    local = FONTS_DIR / filename
+    if local.is_file() and local.stat().st_size > 1000:
+        return str(local)
+    bundled = GIFOS_FONTS_DIR / filename
+    if bundled.is_file():
+        return str(bundled)
+    raise FileNotFoundError(
+        f"Missing font {filename}. Run the workflow or copy fonts from x0rzavi/x0rzavi."
+    )
+
+
 def main() -> None:
     os.makedirs("assets", exist_ok=True)
 
     year_now = datetime.now(timezone.utc).strftime("%Y")
+    last_year = int(year_now) - 1
     stats = gifos.utils.fetch_github_stats(GITHUB_USER)
     if stats is None:
         raise RuntimeError(f"Could not fetch GitHub stats for {GITHUB_USER}")
+
     top_languages = latin1_safe(
         ", ".join(lang[0] for lang in stats.languages_sorted[:5])
         if stats.languages_sorted
         else "N/A"
     )
-    account_name = latin1_safe(stats.account_name) or GITHUB_USER
     user_rating = latin1_safe(stats.user_rank.level)
 
-    t = gifos.Terminal(width=640, height=420, xpad=10, ypad=10)
+    user_details_lines = f"""
+        \x1b[30;101m{GITHUB_USER}@GitHub\x1b[0m
+        --------------
+        \x1b[96mOS: \x1b[93mWindows / Linux\x1b[0m
+        \x1b[96mHost: \x1b[93mFrontend Developer\x1b[0m
+        \x1b[96mKernel: \x1b[93mReact + TypeScript\x1b[0m
+        \x1b[96mIDE: \x1b[93mVS Code, Cursor\x1b[0m
 
-    t.toggle_show_cursor(False)
-    t.gen_text("\x1b[93mGIF OS v1.0 - profile terminal\x1b[0m", 1, count=4)
-    t.gen_text("login: ", 3, count=3)
-    t.toggle_show_cursor(True)
-    t.gen_typing_text(GITHUB_USER.lower(), 3, contin=True)
-    t.toggle_show_cursor(False)
-    t.gen_text("password: ", 4, count=2)
-    t.toggle_show_cursor(True)
-    t.gen_typing_text("********", 4, contin=True)
-    t.toggle_show_cursor(False)
+        \x1b[30;101mContact:\x1b[0m
+        --------------
+        \x1b[96mEmail: \x1b[93mTalVilozny@gmail.com\x1b[0m
+        \x1b[96mLinkedIn: \x1b[93mtal-vilozny-frontend\x1b[0m
 
-    t.gen_prompt(6, count=3)
+        \x1b[30;101mGitHub Stats:\x1b[0m
+        --------------
+        \x1b[96mUser Rating: \x1b[93m{user_rating}\x1b[0m
+        \x1b[96mTotal Stars Earned: \x1b[93m{stats.total_stargazers}\x1b[0m
+        \x1b[96mTotal Commits ({last_year}): \x1b[93m{stats.total_commits_last_year}\x1b[0m
+        \x1b[96mTop Languages: \x1b[93m{top_languages}\x1b[0m
+        """
+
+    bitmap_font = resolve_font(FONT_FILE_BITMAP)
+    mona_font = resolve_font(FONT_FILE_MONA)
+
+    t = gifos.Terminal(750, 500, 15, 15, bitmap_font, 15)
+
+    t.gen_prompt(1)
     prompt_col = t.curr_col
+    t.clone_frame(10)
     t.toggle_show_cursor(True)
-    t.gen_typing_text("\x1b[91mneofet", 6, contin=True)
-    t.delete_row(6, prompt_col)
-    t.gen_text("\x1b[92mneofetch\x1b[0m", 6, count=2, contin=True)
+    t.gen_typing_text("\x1b[91mfetch.s", 1, contin=True)
+    t.delete_row(1, prompt_col)
+    t.gen_text("\x1b[92mfetch.sh\x1b[0m", 1, contin=True)
+    t.gen_typing_text(f" -u {GITHUB_USER.lower()}", 1, contin=True)
 
-    stats_block = f"""
-\x1b[30;101m{GITHUB_USER}@GitHub\x1b[0m
---------------
-\x1b[96mOS: \x1b[93mWindows / Linux\x1b[0m
-\x1b[96mHost: \x1b[93mFrontend Developer\x1b[0m
-\x1b[96mShell: \x1b[93mReact + TypeScript\x1b[0m
-\x1b[96mEmail: \x1b[93mTalVilozny@gmail.com\x1b[0m
+    t.set_font(mona_font, 16, 0)
+    t.toggle_show_cursor(False)
+    t.gen_text(MONA_LINES, 10)
 
-\x1b[30;101mGitHub Stats:\x1b[0m
---------------
-\x1b[96mAccount: \x1b[93m{account_name}\x1b[0m
-\x1b[96mUser Rating: \x1b[93m{user_rating}\x1b[0m
-\x1b[96mTotal Stars: \x1b[93m{stats.total_stargazers}\x1b[0m
-\x1b[96mCommits ({int(year_now) - 1}): \x1b[93m{stats.total_commits_last_year}\x1b[0m
-\x1b[96mTotal PRs: \x1b[93m{stats.total_pull_requests_made}\x1b[0m
-\x1b[96mMerged PR %: \x1b[93m{stats.pull_requests_merge_percentage}\x1b[0m
-\x1b[96mContributions: \x1b[93m{stats.total_repo_contributions}\x1b[0m
-\x1b[96mTop Languages: \x1b[93m{top_languages}\x1b[0m
-"""
-
-    t.clear_frame()
-    t.gen_text(stats_block.strip(), 1, count=8, contin=True)
+    t.set_font(bitmap_font)
+    t.toggle_show_cursor(True)
+    t.gen_text(user_details_lines, 2, 35, count=5, contin=True)
     t.gen_prompt(t.curr_row)
-    t.toggle_show_cursor(True)
     t.gen_typing_text(
         "\x1b[92m# Thanks for visiting my profile!",
         t.curr_row,
         contin=True,
     )
-    t.gen_text("", t.curr_row, count=60, contin=True)
+    t.gen_text("", t.curr_row, count=120, contin=True)
 
     t.gen_gif()
     shutil.move("output.gif", OUTPUT_GIF)
