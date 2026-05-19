@@ -52,7 +52,8 @@ jobs:
           python scripts/generate_github_stats_gif.py
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Optional overrides (see config/gifos/gifos_settings.toml):
+          # Optional overrides (see config/gifos/):
+          # GIFOS_EVERBLUSH_DEFAULT_COLORS_BG: "#000000"
           # GIFOS_GENERAL_COLOR_SCHEME: dracula
           # GIFOS_GENERAL_FPS: 15
 

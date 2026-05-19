@@ -12,7 +12,7 @@ host_name = "profile"    # shell prompt: TalVilozny@profile ~>
 fps = 13
 # Built-in schemes: yoru, dracula, everblush, nord, catppuccin-mocha,
 # catppuccin-latte, gruvbox-dark, gruvbox-light, rose-pine, onedark, monokai
-color_scheme = "everblush"
+color_scheme = "everblush" # bg overridden to #000000 in ansi_escape_colors.toml
 loop_count = 4 # 0 = infinite loop
 
 [files]
