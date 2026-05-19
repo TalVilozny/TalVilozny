@@ -1,1 +1,2 @@
-github-readme-terminal==0.0.3
+# PyPI 0.0.3 crashes when a user has zero PRs; fixed on main.
+github-readme-terminal @ git+https://github.com/x0rzavi/github-readme-terminal.git@main

@@ -15,7 +15,13 @@ def main() -> None:
 
     year_now = datetime.now(timezone.utc).strftime("%Y")
     stats = gifos.utils.fetch_github_stats(GITHUB_USER)
-    top_languages = ", ".join(lang[0] for lang in stats.languages_sorted[:5])
+    if stats is None:
+        raise RuntimeError(f"Could not fetch GitHub stats for {GITHUB_USER}")
+    top_languages = (
+        ", ".join(lang[0] for lang in stats.languages_sorted[:5])
+        if stats.languages_sorted
+        else "N/A"
+    )
 
     t = gifos.Terminal(width=640, height=420, xpad=10, ypad=10)
 
