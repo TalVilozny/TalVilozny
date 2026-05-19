@@ -49,15 +49,22 @@ def latin1_safe(text: str | None) -> str:
     return text.encode("latin-1", errors="replace").decode("latin-1")
 
 
-def resolve_font(filename: str) -> str:
-    local = FONTS_DIR / filename
-    if local.is_file() and local.stat().st_size > 1000:
-        return str(local)
-    bundled = GIFOS_FONTS_DIR / filename
-    if bundled.is_file():
-        return str(bundled)
+def get_bitmap_font() -> str:
+    """Always use the font shipped inside the gifos package."""
+    path = GIFOS_FONTS_DIR / FONT_FILE_BITMAP
+    if not path.is_file():
+        raise FileNotFoundError(f"Bundled bitmap font missing: {path}")
+    return str(path)
+
+
+def get_mona_font() -> str:
+    """Mona art needs Inversionz.otf (downloaded in CI or placed in fonts/)."""
+    path = FONTS_DIR / FONT_FILE_MONA
+    if path.is_file() and path.stat().st_size > 10_000:
+        return str(path)
     raise FileNotFoundError(
-        f"Missing font {filename}. Run the workflow or copy fonts from x0rzavi/x0rzavi."
+        f"Missing {FONT_FILE_MONA} in fonts/. "
+        "Re-run the GitHub Action or download it from x0rzavi/x0rzavi."
     )
 
 
@@ -98,8 +105,8 @@ def main() -> None:
         \x1b[96mTop Languages: \x1b[93m{top_languages}\x1b[0m
         """
 
-    bitmap_font = resolve_font(FONT_FILE_BITMAP)
-    mona_font = resolve_font(FONT_FILE_MONA)
+    bitmap_font = get_bitmap_font()
+    mona_font = get_mona_font()
 
     t = gifos.Terminal(750, 500, 15, 15, bitmap_font, 15)
 

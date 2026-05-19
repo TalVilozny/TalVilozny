@@ -14,14 +14,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Fetch profile fonts (Mona art)
+      - name: Fetch Mona font (Git LFS)
         run: |
           mkdir -p fonts
-          git clone --depth 1 https://github.com/x0rzavi/x0rzavi.git /tmp/x0rzavi-profile
-          cd /tmp/x0rzavi-profile
-          git lfs install
-          git lfs pull
-          cp fonts/Inversionz.otf fonts/gohufont-uni-14.pil "$GITHUB_WORKSPACE/fonts/"
+          curl -fsSL -o fonts/Inversionz.otf \
+            "https://media.githubusercontent.com/media/x0rzavi/x0rzavi/main/fonts/Inversionz.otf"
+          test "$(wc -c < fonts/Inversionz.otf)" -gt 10000
 
       - name: Set up Python
         uses: actions/setup-python@v5
