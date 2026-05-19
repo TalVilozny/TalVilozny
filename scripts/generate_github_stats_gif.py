@@ -10,6 +10,13 @@ GITHUB_USER = "TalVilozny"
 OUTPUT_GIF = "assets/github-stats.gif"
 
 
+def latin1_safe(text: str | None) -> str:
+    """Bitmap font only supports latin-1; strip/replace other characters."""
+    if not text:
+        return ""
+    return text.encode("latin-1", errors="replace").decode("latin-1")
+
+
 def main() -> None:
     os.makedirs("assets", exist_ok=True)
 
@@ -17,16 +24,18 @@ def main() -> None:
     stats = gifos.utils.fetch_github_stats(GITHUB_USER)
     if stats is None:
         raise RuntimeError(f"Could not fetch GitHub stats for {GITHUB_USER}")
-    top_languages = (
+    top_languages = latin1_safe(
         ", ".join(lang[0] for lang in stats.languages_sorted[:5])
         if stats.languages_sorted
         else "N/A"
     )
+    account_name = latin1_safe(stats.account_name) or GITHUB_USER
+    user_rating = latin1_safe(stats.user_rank.level)
 
     t = gifos.Terminal(width=640, height=420, xpad=10, ypad=10)
 
     t.toggle_show_cursor(False)
-    t.gen_text("\x1b[93mGIF OS v1.0 — profile terminal\x1b[0m", 1, count=4)
+    t.gen_text("\x1b[93mGIF OS v1.0 - profile terminal\x1b[0m", 1, count=4)
     t.gen_text("login: ", 3, count=3)
     t.toggle_show_cursor(True)
     t.gen_typing_text(GITHUB_USER.lower(), 3, contin=True)
@@ -53,8 +62,8 @@ def main() -> None:
 
 \x1b[30;101mGitHub Stats:\x1b[0m
 --------------
-\x1b[96mAccount: \x1b[93m{stats.account_name}\x1b[0m
-\x1b[96mUser Rating: \x1b[93m{stats.user_rank.level}\x1b[0m
+\x1b[96mAccount: \x1b[93m{account_name}\x1b[0m
+\x1b[96mUser Rating: \x1b[93m{user_rating}\x1b[0m
 \x1b[96mTotal Stars: \x1b[93m{stats.total_stargazers}\x1b[0m
 \x1b[96mCommits ({int(year_now) - 1}): \x1b[93m{stats.total_commits_last_year}\x1b[0m
 \x1b[96mTotal PRs: \x1b[93m{stats.total_pull_requests_made}\x1b[0m
