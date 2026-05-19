@@ -7,7 +7,8 @@ debug = false
 cursor = "_"
 show_cursor = true
 blink_cursor = true
-user_name = "TalVilozny" # shell prompt: TalVilozny@gifos ~>
+user_name = "TalVilozny" # shell prompt user
+host_name = "profile"    # shell prompt: TalVilozny@profile ~>
 fps = 13
 # Built-in schemes: yoru, dracula, everblush, nord, catppuccin-mocha,
 # catppuccin-latte, gruvbox-dark, gruvbox-light, rose-pine, onedark, monokai

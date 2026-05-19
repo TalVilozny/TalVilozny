@@ -1,9 +1,9 @@
 Put your phone photo here so it appears on the left side of the terminal GIF.
 
 1. Export or save your photo as ONE of these names (same folder as this file):
-   - profile-photo.jpg   (recommended)
+   - profile-photo.png   (recommended — keeps transparent background)
+   - profile-photo.jpg
    - profile-photo.jpeg
-   - profile-photo.png
    - profile-photo.webp
 
 2. Tips:
@@ -14,6 +14,8 @@ Put your phone photo here so it appears on the left side of the terminal GIF.
 3. Commit and push the image file, then run the GitHub Action
    "Update GitHub stats terminal GIF" (or push any change under assets/terminal/).
 
-4. Adjust position/size in config/terminal_image.toml (row, col, size_multiplier).
+4. Adjust position/size in config/terminal_image.toml:
+   - target_height = 200  (pixels tall on screen; increase for a larger photo)
+   - row, col, size_multiplier (if target_height is 0)
 
 If no photo is found, the generator falls back to the default Mona ASCII art.

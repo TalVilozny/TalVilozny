@@ -2,7 +2,10 @@
 # Add the file under assets/terminal/ — see assets/terminal/UPLOAD_YOUR_PHOTO.txt
 
 [image]
-filename = "profile-photo.jpg"
+filename = "profile-photo.png"
 row = 3
 col = 5
-size_multiplier = 0.45
+# Scale factor (ignored when target_height > 0)
+size_multiplier = 0.65
+# Preferred height in pixels on the terminal (sharper than a tiny multiplier)
+target_height = 200
