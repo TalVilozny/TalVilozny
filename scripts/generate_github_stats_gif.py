@@ -196,6 +196,15 @@ def get_bitmap_font() -> str:
     return str(path)
 
 
+def format_top_languages(languages_sorted: list) -> str:
+    names: list[str] = []
+    for lang in languages_sorted[:5]:
+        name = latin1_safe(lang[0]).strip().rstrip(",")
+        if name:
+            names.append(name)
+    return ", ".join(names) if names else "N/A"
+
+
 def build_stats_text(
     user_rating: str,
     total_stars: int,
@@ -250,11 +259,7 @@ def main() -> None:
     if stats is None:
         raise RuntimeError(f"Could not fetch GitHub stats for {GITHUB_USER}")
 
-    top_languages = latin1_safe(
-        ", ".join(lang[0] for lang in stats.languages_sorted[:5])
-        if stats.languages_sorted
-        else "N/A"
-    )
+    top_languages = format_top_languages(stats.languages_sorted)
     user_rating = latin1_safe(stats.user_rank.level)
     user_details_lines = build_stats_text(
         user_rating,
